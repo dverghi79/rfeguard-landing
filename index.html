@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ============================================================
+       TEMPLATE PARAMETERS — replace every {{PLACEHOLDER}} below
+       before deploying. See README.md for full instructions.
+       ============================================================ -->
+  <title>RFEGuard — Prevent RFEs before they happen.</title>
+  <meta name="description" content="RFEGuard scans every immigration petition package against current USCIS requirements before you file — so you prevent the RFE instead of responding to it." />
+
+  <!-- Plausible Analytics (cookie-free, no consent required) -->
+  <!-- Replace rfeguard-landing.vercel.app with the actual Vercel domain, e.g. myproduct.vercel.app -->
+  <script defer data-domain="rfeguard-landing.vercel.app" src="https://plausible.io/js/script.js"></script>
+
+  <!-- Google Ads gtag — loaded only after cookie consent -->
+  <script>
+    function loadGtag() {
+      var s = document.createElement('script');
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=AW-18071371531';
+      s.async = true;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function(){dataLayer.push(arguments);};
+      gtag('js', new Date());
+      gtag('config', 'AW-18071371531');
+    }
+    function setCookieConsent(choice) {
+      localStorage.setItem('cookie_consent', choice);
+      var banner = document.getElementById('cookie-banner');
+      if (banner) banner.style.display = 'none';
+      if (choice === 'accepted') loadGtag();
+    }
+    (function() {
+      var consent = localStorage.getItem('cookie_consent');
+      if (consent === 'accepted') { loadGtag(); }
+      else if (consent !== 'rejected') {
+        document.addEventListener('DOMContentLoaded', function() {
+          var b = document.getElementById('cookie-banner');
+          if (b) b.style.display = 'block';
+        });
+      }
+    })();
+  </script>
+
+  <!-- Fonts — Space Grotesk (headlines) + DM Sans (body) + JetBrains Mono (accents) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* ---- Base ---- */
+    body { font-family: 'DM Sans', system-ui, sans-serif; background: #070d14; color: #e8f0f8; margin: 0; }
+    h1,h2,h3,h4,h5,h6 { font-family: 'Space Grotesk', system-ui, sans-serif; }
+    html { scroll-behavior: smooth; }
+
+    /* ---- Color tokens ---- */
+    /* To change the accent colour, replace all occurrences of #38bdf8 and #0ea5e9 */
+    .accent { color: #38bdf8; }
+    .border-line { border-top: 1px solid #0f1f2e; }
+
+    /* ---- Form inputs ---- */
+    input, select, textarea { background: #0d1a26; border: 1px solid #0f1f2e; color: #e8f0f8; outline: none; border-radius: 0.375rem; }
+    input:focus, select:focus, textarea:focus { border-color: rgba(56,189,248,0.5); box-shadow: 0 0 0 1px rgba(56,189,248,0.25); }
+    ::placeholder { color: #2d4a63; }
+
+    /* ---- Cards ---- */
+    .card { background: #0b1723; border: 1px solid #0f1f2e; border-radius: 0.5rem; }
+    .tag { background: transparent; border: 1px solid #0f1f2e; color: #2d4a63; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.05em; padding: 0.3rem 0.65rem; border-radius: 0.25rem; }
+
+    /* ---- Buttons ---- */
+    .btn-primary { background: #38bdf8; color: #070d14; font-weight: 700; border-radius: 0.375rem; padding: 0 2rem; height: 3rem; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; text-decoration: none; transition: background 0.15s; font-family: 'Space Grotesk', sans-serif; cursor: pointer; border: none; }
+    .btn-primary:hover { background: #0ea5e9; }
+    .btn-ghost { color: #2d4a63; padding: 0 1rem; height: 3rem; display: inline-flex; align-items: center; font-size: 1rem; text-decoration: none; transition: color 0.15s; }
+    .btn-ghost:hover { color: #e8f0f8; }
+
+    /* ---- Layout helpers ---- */
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .grid-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .step-icon { width: 2.25rem; height: 2.25rem; background: rgba(56,189,248,0.1); border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    /* ---- Mobile ---- */
+    @media (max-width: 768px) { .hide-mobile { display: none !important; } }
+
+    /* ---- Cookie banner ---- */
+    #cookie-banner { display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:#0b1723; border-top:1px solid #0f1f2e; padding:1rem 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       GDPR COOKIE CONSENT BANNER (do not remove)
+       ============================================================ -->
+  <div id="cookie-banner">
+    <div style="max-width:1120px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;">
+      <p style="margin:0;font-size:0.8125rem;color:rgba(232,240,248,0.7);">We use analytics cookies to understand how you use this page. <a href="/privacy.html" style="color:#38bdf8;text-decoration:underline;">Privacy Policy</a></p>
+      <div style="display:flex;gap:0.625rem;flex-shrink:0;">
+        <button onclick="setCookieConsent('rejected')" style="background:transparent;border:1px solid #1a3048;color:rgba(232,240,248,0.5);padding:0.375rem 0.875rem;border-radius:0.25rem;cursor:pointer;font-size:0.8125rem;font-family:'DM Sans',sans-serif;">Reject</button>
+        <button onclick="setCookieConsent('accepted')" style="background:#38bdf8;color:#070d14;font-weight:700;padding:0.375rem 0.875rem;border-radius:0.25rem;cursor:pointer;font-size:0.8125rem;font-family:'Space Grotesk',sans-serif;">Accept</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       NAV / LOGO
+       ============================================================ -->
+  <div style="max-width:1120px;margin:0 auto;padding:1.5rem 2rem 0;">
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <!-- Product icon — replace the SVG path below with your product's icon or keep this default -->
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <!-- DEFAULT ICON: <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/> <line x1="3" y1="9" x2="21" y2="9"/> <line x1="3" y1="15" x2="21" y2="15"/> <line x1="9" y1="3" x2="9" y2="21"/> <line x1="15" y1="3" x2="15" y2="21"/> -->
+      </svg>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;color:#e8f0f8;letter-spacing:-0.01em;">RFEGuard</span>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       HERO — headline + value prop + CTA
+       ============================================================ -->
+  <section style="max-width:1120px;margin:0 auto;padding:4rem 2rem 4rem;position:relative;">
+
+    <!-- Badge -->
+    <div style="display:inline-flex;align-items:center;gap:0.5rem;border:1px solid #0f1f2e;border-radius:0.25rem;padding:0.3rem 0.75rem;color:#2d4a63;font-size:0.8rem;margin-bottom:2rem;font-family:'JetBrains Mono',monospace;">
+      <span style="color:#38bdf8;">→</span> Early Access Open · USCIS-aware document review
+      <!-- PARAM: e.g. "Early Access Open · Free to join" or "Limited founding spots" -->
+    </div>
+
+    <div style="max-width:780px;">
+      <!-- HEADLINE: make it specific pain-led or outcome-led. Max 10 words. Bold, large. -->
+      <h1 style="font-size:clamp(2.25rem,5vw,3.75rem);line-height:1.08;font-weight:700;letter-spacing:-0.025em;margin-bottom:1.5rem;color:#e8f0f8;">
+        Prevent RFEs before they happen.
+        <!-- PARAM: The big, bold headline. Can include a <span style="color:#38bdf8;">highlighted</span> word. -->
+      </h1>
+
+      <!-- SUBHEADLINE: one to two sentences. Expand on the headline. Mention the ICP specifically. -->
+      <p style="font-size:clamp(1.05rem,2vw,1.2rem);color:#2d4a63;line-height:1.7;max-width:600px;margin-bottom:2.5rem;">
+        RFEGuard scans every petition document package against current USCIS requirements before you file — so you catch the missing evidence, the outdated form version, and the unsupported claim before the officer does.
+        <!-- PARAM: 1-2 sentences describing the product and the outcome for the ICP. -->
+      </p>
+
+      <div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:center;">
+        <a href="#waitlist" class="btn-primary">Join the waitlist for early access</a>
+        <a href="#how-it-works" class="btn-ghost">See how it works ↓</a>
+      </div>
+    </div>
+
+    <!-- Desktop accent visual — product-specific data/screenshot widget -->
+    <!-- Replace the content inside this div with a product-relevant visual: terminal output, data table, code snippet, etc. -->
+    <div class="hide-mobile card" style="position:absolute;right:2rem;top:50%;transform:translateY(-50%);width:260px;padding:1.25rem;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#2d4a63;">
+      <div style="color:#38bdf8;margin-bottom:0.75rem;">// petition_scan.json</div>
+      <!-- PARAM petition_scan.json: e.g. "client_discovery.json" or "job_cost_codes" -->
+      <!-- Add 4-6 lines of product-relevant data below -->
+      <div><span style="color:#0ea5e9;">petition_type:</span> <span style="color:#e8f0f8;">H-1B Cap-Exempt</span></div>
+      <div><span style="color:#0ea5e9;">evidence_gaps:</span> <span style="color:#e8f0f8;">2 flagged</span></div>
+      <div><span style="color:#0ea5e9;">policy_version:</span> <span style="color:#e8f0f8;">current ✓</span></div>
+      <div><span style="color:#0ea5e9;">rfe_risk_score:</span> <span style="color:#e8f0f8;">LOW (after fix)</span></div>
+      <div style="margin-top:0.75rem;color:#38bdf8;">→ safe to file</div>
+      <!-- PARAM safe to file: e.g. "baseline_doc generated" or "entries written to QBO" -->
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAIN SECTION — 3 specific pain points the ICP recognises
+       ============================================================ -->
+  <section class="border-line" style="padding:5rem 2rem;">
+    <div style="max-width:1120px;margin:0 auto;">
+      <p style="font-size:0.72rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#38bdf8;font-family:'JetBrains Mono',monospace;margin-bottom:1rem;">The problem</p>
+      <h2 style="font-size:clamp(1.5rem,3vw,2.5rem);font-weight:700;letter-spacing:-0.015em;max-width:660px;margin-bottom:4rem;color:#e8f0f8;">
+        One RFE costs you 8 hours of response time and 90 days of your client's waiting.
+        <!-- PARAM: One strong sentence that frames the core problem. E.g. "No tool was built for the consultant who needs their client to fill out a discovery form." -->
+      </h2>
+
+      <div class="grid-auto" style="gap:3rem;">
+        <!-- Pain point 1 -->
+        <div>
+          <span style="display:block;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:rgba(56,189,248,0.45);margin-bottom:0.75rem;">01</span>
+          <p style="font-size:1rem;color:#2d4a63;line-height:1.7;">
+            USCIS requirements change without announcement. A form field that was optional becomes required. A supporting document category that was accepted is now consistently flagged. You follow the same checklist you have used for years, and an RFE arrives on a case you thought was clean. You are not making mistakes — the requirements moved.
+            <!-- PARAM: First pain point — 2-3 sentences. Should name a specific competitor or workaround the ICP currently uses and why it falls short. -->
+          </p>
+        </div>
+        <!-- Pain point 2 -->
+        <div>
+          <span style="display:block;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:rgba(56,189,248,0.45);margin-bottom:0.75rem;">02</span>
+          <p style="font-size:1rem;color:#2d4a63;line-height:1.7;">
+            Responding to a single RFE takes 6-12 hours: reviewing the notice, locating the missing evidence, drafting the response brief, coordinating with your client. For a solo attorney billing 40-50 cases a year, 3-4 RFEs a year is 24-48 hours of unplanned work. That is a full week of your capacity, absorbed by cases you thought were done.
+            <!-- PARAM: Second pain point — the human cost or time cost of the status quo. -->
+          </p>
+        </div>
+        <!-- Pain point 3 -->
+        <div>
+          <span style="display:block;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:rgba(56,189,248,0.45);margin-bottom:0.75rem;">03</span>
+          <p style="font-size:1rem;color:#2d4a63;line-height:1.7;">
+            Your clients hired you because they trust you to navigate the system correctly. An RFE is not just a bureaucratic delay — it is a moment of visible failure in front of a client who is waiting to change their life. You know it is not your fault when USCIS moves the goalposts. They do not know that.
+            <!-- PARAM: Third pain point — the irony or embarrassment of the current situation (optional but high-converting). -->
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       HOW IT WORKS — 3 features / steps
+       ============================================================ -->
+  <section id="how-it-works" class="border-line" style="padding:5rem 2rem;">
+    <div style="max-width:1120px;margin:0 auto;">
+      <p style="font-size:0.72rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#38bdf8;font-family:'JetBrains Mono',monospace;margin-bottom:1rem;">How it works</p>
+      <h2 style="font-size:clamp(1.5rem,3vw,2.5rem);font-weight:700;letter-spacing:-0.015em;max-width:600px;margin-bottom:4rem;color:#e8f0f8;">
+        Upload the petition package. RFEGuard flags what USCIS will flag.
+        <!-- PARAM: One sentence that sets up the 3 features below. E.g. "Your client completes the portal. You get the baseline document." -->
+      </h2>
+
+      <div class="grid-auto" style="gap:1.5rem;">
+        <!-- Feature 1 -->
+        <div class="card" style="padding:2rem;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
+            <div class="step-icon">
+              <!-- Replace with a relevant Lucide-style SVG icon -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                <!-- DEFAULT: <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/> -->
+              </svg>
+            </div>
+            <span class="mono" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2d4a63;">Step 1</span>
+          </div>
+          <h3 style="font-size:1.05rem;font-weight:600;color:#e8f0f8;margin-bottom:0.75rem;">Upload your full petition package before filing</h3>
+          <p style="font-size:0.95rem;color:#2d4a63;line-height:1.65;">Upload the petition, all supporting evidence, and the cover letter. RFEGuard reads the complete package against the petition type, visa category, and current USCIS adjudication standards — not a static checklist, but dynamic policy tracking.</p>
+        </div>
+        <!-- Feature 2 -->
+        <div class="card" style="padding:2rem;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
+            <div class="step-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <!-- DEFAULT: <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/> -->
+              </svg>
+            </div>
+            <span class="mono" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2d4a63;">Step 2</span>
+          </div>
+          <h3 style="font-size:1.05rem;font-weight:600;color:#e8f0f8;margin-bottom:0.75rem;">Completeness scan flags missing evidence categories</h3>
+          <p style="font-size:0.95rem;color:#2d4a63;line-height:1.65;">RFEGuard identifies every evidence category that USCIS requires or consistently requests for your petition type. Missing tax returns, outdated form versions, insufficient specialty occupation support — every gap flagged before it becomes an RFE.</p>
+        </div>
+        <!-- Feature 3 -->
+        <div class="card" style="padding:2rem;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
+            <div class="step-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                <!-- DEFAULT: <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/> -->
+              </svg>
+            </div>
+            <span class="mono" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2d4a63;">Step 3</span>
+          </div>
+          <h3 style="font-size:1.05rem;font-weight:600;color:#e8f0f8;margin-bottom:0.75rem;">USCIS monitoring catches policy drift automatically</h3>
+          <p style="font-size:0.95rem;color:#2d4a63;line-height:1.65;">RFEGuard monitors USCIS policy memoranda, AAO decisions, and adjudication trend data. When requirements shift in a category you file in, you get a notification before the change costs you a case. No immigration checklist tool does this today.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       WHO IS THIS FOR — ICP section
+       ============================================================ -->
+  <section class="border-line" style="padding:5rem 2rem;">
+    <div style="max-width:1120px;margin:0 auto;">
+      <p style="font-size:0.72rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#38bdf8;font-family:'JetBrains Mono',monospace;margin-bottom:1rem;">Built for</p>
+      <h2 style="font-size:clamp(1.5rem,3vw,2.5rem);font-weight:700;letter-spacing:-0.015em;max-width:600px;margin-bottom:4rem;color:#e8f0f8;">
+        Solo immigration attorneys filing 30-80 petitions a year
+        <!-- PARAM: Who this product is built for, specific. E.g. "Solo and 2-3 person cybersecurity consultancies serving SMB clients" -->
+      </h2>
+
+      <div class="grid-2col" style="gap:1.5rem;margin-bottom:2rem;">
+        <!-- ICP benefit card 1 -->
+        <div class="card" style="padding:2rem;">
+          <span class="mono" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2d4a63;display:block;margin-bottom:1rem;">The hidden cost</span>
+          <!-- PARAM: e.g. "The throughput problem" or "The time problem" -->
+          <h3 style="font-size:1.15rem;font-weight:600;color:#e8f0f8;margin-bottom:0.75rem;">Stop absorbing 24-48 hours of unplanned RFE work every year.</h3>
+          <!-- PARAM: One punchy sentence of the outcome benefit. -->
+          <p style="font-size:0.95rem;color:#2d4a63;line-height:1.65;">A solo immigration attorney managing 50 cases a year and receiving 3-4 RFEs absorbs a full working week in unplanned response work annually. RFEGuard is designed to prevent the RFE from issuing — not just help you respond to it.</p>
+          <!-- PARAM: 2-3 sentences expanding the benefit. Quantify if possible. -->
+        </div>
+        <!-- ICP benefit card 2 -->
+        <div class="card" style="padding:2rem;">
+          <span class="mono" style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#2d4a63;display:block;margin-bottom:1rem;">The confidence signal</span>
+          <h3 style="font-size:1.15rem;font-weight:600;color:#e8f0f8;margin-bottom:0.75rem;">File with confidence, not with anxiety.</h3>
+          <p style="font-size:0.95rem;color:#2d4a63;line-height:1.65;">Every experienced immigration attorney knows the feeling of submitting a petition and wondering if you missed something USCIS changed last month. RFEGuard replaces that anxiety with a completeness score and a clear issues list before you file.</p>
+        </div>
+      </div>
+
+      <!-- ICP tags — specific roles, firm sizes, tools used -->
+      <div style="display:flex;flex-wrap:wrap;gap:0.65rem;">
+        <span class="tag">Solo immigration attorneys</span>
+        <span class="tag">H-1B / O-1 practitioners</span>
+        <span class="tag">Family-based petition specialists</span>
+        <span class="tag">AILA members</span>
+        <span class="tag">High-volume filers (30-80/yr)</span>
+        <!-- PARAM: Add/remove tags as needed. Use tool names, firm sizes, or role descriptions. -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       WAITLIST / CTA SECTION — email capture form
+       Primary section: this is the conversion goal
+       ============================================================ -->
+  <section id="waitlist" class="border-line" style="padding:5rem 2rem;">
+    <div style="max-width:1120px;margin:0 auto;">
+      <div class="grid-2col" style="gap:3rem 5rem;align-items:start;">
+
+        <!-- Left: copy + benefit bullets + urgency -->
+        <div>
+          <p style="font-size:0.72rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#38bdf8;font-family:'JetBrains Mono',monospace;margin-bottom:1rem;">Early access · Limited spots</p>
+          <h2 style="font-size:clamp(1.75rem,3.5vw,2.5rem);font-weight:700;letter-spacing:-0.02em;color:#e8f0f8;margin-bottom:1.25rem;line-height:1.2;">
+            Be among the first to use RFEGuard.
+          </h2>
+          <p style="font-size:0.95rem;color:#2d4a63;line-height:1.7;max-width:440px;margin-bottom:2rem;">
+            We are onboarding a small group of solo immigration attorneys to test RFEGuard before full launch. Early access is free. Join the waitlist and you will be first in when early access opens.
+            <!-- PARAM: 2-3 sentences. Describe what early access means: who you are onboarding, what they get, when. E.g. "We are onboarding a small group of [ICP] to test [Product] before full launch. Join the waitlist — you will be the first to know when early access opens." -->
+          </p>
+
+          <!-- Benefit bullets — 4 honest statements about what joining the waitlist means -->
+          <div style="display:flex;flex-direction:column;gap:0.875rem;font-size:0.875rem;">
+            <p style="display:flex;align-items:center;gap:0.625rem;color:rgba(232,240,248,0.75);margin:0;"><span style="width:5px;height:5px;border-radius:50%;background:#38bdf8;flex-shrink:0;"></span>Free during early access</p>
+            <p style="display:flex;align-items:center;gap:0.625rem;color:rgba(232,240,248,0.75);margin:0;"><span style="width:5px;height:5px;border-radius:50%;background:#38bdf8;flex-shrink:0;"></span>Your feedback shapes the product</p>
+            <p style="display:flex;align-items:center;gap:0.625rem;color:rgba(232,240,248,0.75);margin:0;"><span style="width:5px;height:5px;border-radius:50%;background:#38bdf8;flex-shrink:0;"></span>No credit card required</p>
+            <p style="display:flex;align-items:center;gap:0.625rem;color:rgba(232,240,248,0.75);margin:0;"><span style="width:5px;height:5px;border-radius:50%;background:#38bdf8;flex-shrink:0;"></span>First to know when we launch</p>
+          </div>
+        </div>
+
+        <!-- Right: the form -->
+        <div>
+          <!-- Success state — shown after form submission -->
+          <div id="success-message" style="display:none;padding:2.5rem 0;">
+            <div style="width:3rem;height:3rem;background:rgba(56,189,248,0.1);border-radius:0.375rem;display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h2 style="font-size:1.5rem;font-weight:700;color:#e8f0f8;margin-bottom:0.75rem;">You are on the list!</h2>
+            <p style="font-size:0.95rem;color:#2d4a63;line-height:1.65;margin:0;">We will email you when early access opens. Keep an eye on your inbox.</p>
+          </div>
+
+          <!-- Form -->
+          <form id="signup-form" onsubmit="handleSubmit(event)" style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div>
+              <label style="display:block;font-size:0.875rem;font-weight:500;color:#e8f0f8;margin-bottom:0.375rem;">Work email <span style="color:#38bdf8;">*</span></label>
+              <input id="email" type="email" required placeholder="you@yourimmigrationfirm.com" style="width:100%;height:2.75rem;padding:0 1rem;font-size:1rem;box-sizing:border-box;" />
+              <!-- PARAM you@yourimmigrationfirm.com: e.g. "you@yourfirm.com" -->
+            </div>
+            <div>
+              <label style="display:block;font-size:0.875rem;font-weight:500;color:#e8f0f8;margin-bottom:0.375rem;">First name</label>
+              <input id="first-name" type="text" placeholder="Alex" style="width:100%;height:2.75rem;padding:0 1rem;font-size:1rem;box-sizing:border-box;" />
+              <!-- PARAM Alex: e.g. "Alex" or "Your first name" -->
+            </div>
+            <button type="submit" id="submit-btn" class="btn-primary" style="width:100%;height:3rem;font-size:1rem;">
+              Join the waitlist for early access
+            </button>
+            <p style="font-size:0.75rem;color:rgba(45,74,99,0.6);text-align:center;margin:0;">No spam. We will only contact you about RFEGuard.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer class="border-line" style="padding:2.5rem 2rem;">
+    <div style="max-width:1120px;margin:0 auto;">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:1.25rem;margin-bottom:1.25rem;">
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.875rem;color:#e8f0f8;">RFEGuard</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:1.5rem;font-size:0.75rem;color:rgba(45,74,99,0.65);">
+          <a href="mailto:info@leanaistudio.com" style="color:inherit;text-decoration:none;" onmouseover="this.style.color='#2d4a63'" onmouseout="this.style.color='rgba(45,74,99,0.65)'">info@leanaistudio.com</a>
+          <a href="/privacy.html" style="color:inherit;text-decoration:none;" onmouseover="this.style.color='#2d4a63'" onmouseout="this.style.color='rgba(45,74,99,0.65)'">Privacy Policy</a>
+          <a href="/terms.html" style="color:inherit;text-decoration:none;" onmouseover="this.style.color='#2d4a63'" onmouseout="this.style.color='rgba(45,74,99,0.65)'">Terms of Service</a>
+        </div>
+      </div>
+      <div style="border-top:1px solid #0f1f2e;padding-top:1rem;font-size:0.7rem;color:rgba(45,74,99,0.45);line-height:1.8;">
+        <p style="margin:0;">© 2026 LeanAI Studio srl — P.IVA/CF: 14561020968</p>
+        <p style="margin:0;">RFEGuard is a product of LeanAI Studio srl</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       JAVASCRIPT — form submit handler
+       DO NOT EDIT the logic below. Only change the product-specific
+       values (secret token, product name, Plausible event name).
+       ============================================================ -->
+  <script>
+    // Helper: collect UTM parameters from URL
+    function getUTMParams() {
+      var params = new URLSearchParams(window.location.search);
+      var utm = {};
+      ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function(k) {
+        var v = params.get(k);
+        if (v) utm[k] = v;
+      });
+      return utm;
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      var btn = document.getElementById('submit-btn');
+      btn.textContent = 'Joining...';
+      btn.disabled = true;
+
+      var utm = getUTMParams();
+      var email = document.getElementById('email').value;
+      var firstName = document.getElementById('first-name').value;
+      var payload = {
+        secret: 'rg_5m1k7p3n9r2s',
+        // PARAM: Generate a random token per LP (e.g. "ak_9n4k6p2m1r8s"). Used by Sheet proxy as light auth check.
+        product: 'RFEGuard',
+        email: email,
+        first_name: firstName,
+        source: utm.utm_medium || 'direct',
+        submitted_at: new Date().toISOString(),
+        page_url: window.location.href
+      };
+      Object.assign(payload, utm);
+
+      // Slack alert via server-side proxy (SLACK_WEBHOOK_URL env var in Vercel)
+      try {
+        await fetch('/api/slack-notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: '*[RFEGuard]* New waitlist signup!\n*Email:* ' + email + '\n*Name:* ' + (firstName || 'n/a') + '\n*Source:* ' + payload.source
+          })
+        });
+      } catch(ex) {}
+
+      // Google Sheet via server-side proxy (GOOGLE_SHEET_WEBHOOK_URL env var in Vercel)
+      try {
+        await fetch('/api/sheet-notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch(ex) {}
+
+      // Plausible custom event
+      // PARAM: 'waitlist-signup' — use 'waitlist-signup' (consistent across all LPs)
+      try { if (window.plausible) window.plausible('waitlist-signup', { props: { source: payload.source } }); } catch(ex) {}
+
+      // Google Ads conversion (fires only if user accepted cookies)
+      // PARAM: 'AWAITING_SETUP' — replace with per-product conversion label from Google Ads dashboard
+      try { if (typeof gtag === 'function') gtag('event', 'conversion', { send_to: 'AW-18071371531/AWAITING_SETUP', value: 1.0, currency: 'USD' }); } catch(ex) {}
+
+      // Show success state
+      document.getElementById('signup-form').style.display = 'none';
+      document.getElementById('success-message').style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>
