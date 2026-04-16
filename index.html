@@ -424,7 +424,8 @@
         product: 'RFEGuard',
         email: email,
         first_name: firstName,
-        source: utm.utm_medium || 'direct',
+        source: 'RFEGuard',
+        traffic_source: utm.utm_source || 'direct',
         submitted_at: new Date().toISOString(),
         page_url: window.location.href
       };
@@ -436,7 +437,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            text: '*[RFEGuard]* New waitlist signup!\n*Email:* ' + email + '\n*Name:* ' + (firstName || 'n/a') + '\n*Source:* ' + payload.source
+            text: '*[RFEGuard]* New waitlist signup!\n*Email:* ' + email + '\n*Name:* ' + (firstName || 'n/a') + '\n*Product:* RFEGuard\n*Traffic Source:* ' + (utm.utm_source || 'direct')
           })
         });
       } catch(ex) {}
@@ -461,7 +462,7 @@
 
       // Plausible custom event
       // PARAM: 'waitlist-signup' — use 'waitlist-signup' (consistent across all LPs)
-      try { if (window.plausible) window.plausible('waitlist-signup', { props: { source: payload.source } }); } catch(ex) {}
+      try { if (window.plausible) window.plausible('waitlist-signup', { props: { source: 'RFEGuard', traffic_source: utm.utm_source || 'direct' } }); } catch(ex) {}
 
       // Google Ads conversion (fires only if user accepted cookies)
       // PARAM: 'AWAITING_SETUP' — replace with per-product conversion label from Google Ads dashboard
@@ -473,6 +474,5 @@
     }
   </script>
 
-  <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
