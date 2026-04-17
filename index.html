@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script defer src="/_vercel/insights/script.js"></script>
 
   <!-- ============================================================
        TEMPLATE PARAMETERS — replace every {{PLACEHOLDER}} below
@@ -654,7 +655,7 @@
 
       // Plausible custom event
       // PARAM: 'waitlist-signup' — use 'waitlist-signup' (consistent across all LPs)
-      try { if (window.plausible) window.plausible('waitlist-signup', { props: { source: 'RFEGuard', traffic_source: utm.utm_source || 'direct' } }); } catch(ex) {}
+      try { if (window.va) window.va('event', { name: 'waitlist-signup', data: { product: 'RFEGuard', source: 'RFEGuard', traffic_source: utm.utm_source || 'direct' } }); } catch(ex) {}
 
       // Google Ads conversion (fires only if user accepted cookies)
       // PARAM: 'AWAITING_SETUP' — replace with per-product conversion label from Google Ads dashboard
